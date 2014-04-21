@@ -27,18 +27,21 @@ public class DirectoryManager {
     String directoryPath;
     PApplet app;
     
+    int id;
+    
     DirectoryManager(PApplet app){        
         this.app = app;      
         names = new ArrayList<>();                
     }
     
-    DirectoryManager(PApplet app, String directoryPath){        
+    DirectoryManager(PApplet app, String directoryPath, int id){        
         this.app = app;
         this.directoryPath = directoryPath;        
         names = new ArrayList<>();   
         usedNames = new ArrayList<>();
         
-        loadNames(this.directoryPath);        
+        loadNames(this.directoryPath);     
+        this.id = id;
     }
     
     private void loadNames(String directoryPath){           
@@ -96,7 +99,9 @@ public class DirectoryManager {
     public ArrayList<String> getUsedNames(){
         return(usedNames);
     }
-    
+    public int getId(){
+        return(id);
+    }
 //    public PImage getFirstLoadedImage(){
 //        PImage ii = new PImage();
 //        for (PImage img : images) {

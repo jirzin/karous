@@ -47,9 +47,14 @@ public class Karous extends PApplet {
     public String rootFolder = "data/";
     
     public ArrayList<String> dirNames;
-    public ArrayList<DirectoryManager> dirManagers;            
+    public ArrayList<DirectoryManager> dirManagers;      
+    public ArrayList<SegmentShape> segmentShapes;
     
-    public Editor editor;                
+    public Editor editor;     
+    
+    public Cond cond = Cond.EDITTING;
+    
+    public SegmentShape currSegmentShape;
     
     public Karous() {        
         
@@ -75,7 +80,7 @@ public class Karous extends PApplet {
         File[] dirs = new File(rootFolder).listFiles();
         for(File file:dirs){
             if(file.isDirectory()){
-                dirNames.add(rootFolder+file.getName());
+                dirNames.add(rootFolder+file.getName()+"/");
             }
         }
         
@@ -83,6 +88,7 @@ public class Karous extends PApplet {
         dirManagers = new ArrayList<>();
        // positionsAndSizes = new ArrayList<>();
         segments = new ArrayList<>();
+        segmentShapes = new ArrayList<>();
                 
         
         
@@ -107,33 +113,48 @@ public class Karous extends PApplet {
         // for every position and size generate graphic segment
         //for(float[] f:positionsAndSizes){
         //    System.out.println(f);
-            segments.add(new Segment(this,100,100,100,100));
-            segments.add(new Segment(this,0,150,100,100));
-            segments.add(new Segment(this,200,50,60,60));
-            segments.add(new Segment(this,280,90,20,400));
+        //    segments.add(new Segment(this,100,100,100,100));
+        //    segments.add(new Segment(this,0,150,100,100));
+        //    segments.add(new Segment(this,200,50,60,60));
+        //    segments.add(new Segment(this,280,90,20,300));
+        //    segments.add(new Segment(this,300,200,200,100));
+            
             //System.out.println(segments.size());
         //}                
         
-        // create managers for evrery direcotry entry in data folder
+        // create managers for all direcotry entry in data folder
         int i = 0;
         for(String s: dirNames){
-            dirManagers.add(new DirectoryManager(this, s));
+            dirManagers.add(new DirectoryManager(this, s, i));
             i++;
         }
                 
         //creates GUI editor
-        editor = createEditor("editor", 1024,600,dirNames,dirManagers,segments);
+        editor = createEditor("editor", 1024,600,dirNames,dirManagers,segments,segmentShapes);
    
     }
     
     @Override
     public void draw() {
-        this.background(0);      
-        for(Segment seg:segments){
-            seg.draw();
+        this.background(0);
+        switch (cond) {
+            case PROJECTION:
+                for (Segment seg : segments) {
+                    seg.pulse();
+                    seg.draw();
+                    //seg.debugDraw();            
+                }
+                break;
+            case EDITTING:
+                for (SegmentShape s : segmentShapes) {
+                    //seg.pulse();
+                    s.draw();
+                    //seg.debugDraw();            
+                }
+                break;
         }
     }
-    
+
     @Override
     public int sketchWidth() {
         return (int) appSize.x;
@@ -158,9 +179,9 @@ public class Karous extends PApplet {
     }
     
     
-    private Editor createEditor(String name, int w, int h, ArrayList<String> dirNames,ArrayList<DirectoryManager> dirManagers,ArrayList<Segment> segments){
+    private Editor createEditor(String name, int w, int h, ArrayList<String> dirNames,ArrayList<DirectoryManager> dirManagers,ArrayList<Segment> segments, ArrayList<SegmentShape> segmentShapes){
         Frame f = new Frame(name);
-        Editor e = new Editor(this,w,h,dirNames,dirManagers,segments);
+        Editor e = new Editor(this,w,h,dirNames,dirManagers,segments,segmentShapes);
         f.add(e);
         e.init();
         f.setTitle(name);
@@ -177,5 +198,43 @@ public class Karous extends PApplet {
     @Override
     public void mousePressed(){
        // dir1.printOutFiles();
+        switch(cond){
+            case EDITTING:
+                System.out.println(mouseX + " | " + mouseY);
+                if (segmentShapes.size() > 0) {
+                    currSegmentShape.addVertex(mouseX, mouseY);
+                }
+                break;
+                
+        }
     }//
+    
+    @Override
+    public void keyPressed(){
+        if (cond == Cond.EDITTING) {
+            if (key == 'n') {
+                System.out.println("create new mask shape");
+                segmentShapes.add(new SegmentShape(this));
+                currSegmentShape = (SegmentShape) segmentShapes.get(segmentShapes.size() - 1);
+                currSegmentShape.setId(segmentShapes.size() - 1);
+            }
+            if (key == 'c') {
+                System.out.println("closing shape");
+                currSegmentShape.closeShape();
+                segments.add(new Segment(this,currSegmentShape.getShapeMask(),currSegmentShape.getPosition(),currSegmentShape.getSize()));
+                editor.addSegmentButton(currSegmentShape);
+            }
+        }
+        if(key == 'e'){
+            cond = Cond.EDITTING;
+            System.out.println(cond);
+        }
+        if(key == 'p'){
+            cond = Cond.PROJECTION;            
+            System.out.println(cond);
+        }
+    }
+    public enum Cond{
+        EDITTING,PROJECTION
+    }
 }
