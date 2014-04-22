@@ -221,7 +221,7 @@ public class Karous extends PApplet {
             if (key == 'c') {
                 System.out.println("closing shape");
                 currSegmentShape.closeShape();
-                segments.add(new Segment(this,currSegmentShape.getShapeMask(),currSegmentShape.getPosition(),currSegmentShape.getSize()));
+                segments.add(new Segment(this,currSegmentShape.getShapeMask(),currSegmentShape.getPosition(),currSegmentShape.getSize(),currSegmentShape.getId()));
                 editor.addSegmentButton(currSegmentShape);
             }
         }

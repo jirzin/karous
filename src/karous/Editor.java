@@ -50,7 +50,10 @@ public class Editor extends PApplet {
     Slider freq;
     Slider min;
     Slider max;
-    //Slider empty;
+    Slider offsetX;
+    Slider offsetY;
+    Slider rotation;
+    Slider imageScale;
 
     Segment segment;
 
@@ -125,6 +128,45 @@ public class Editor extends PApplet {
                 .setColorForeground(color(100, 0, 0))
                 .setColorActive(color(200, 0, 0))
                 ;
+        
+        offsetX = cp5.addSlider("offsetX")
+                .setRange(-1, 1)
+                .setPosition(10, 50)
+                .setGroup(parameters)
+                .setColorBackground(color(100))
+                .setColorForeground(color(100, 0, 0))
+                .setColorActive(color(200, 0, 0))
+                .setValue(0)
+                ;
+        offsetY = cp5.addSlider("offsetY")
+                .setRange(-1, 1)
+                .setPosition(10, 60)
+                .setGroup(parameters)
+                .setColorBackground(color(100))
+                .setColorForeground(color(100, 0, 0))
+                .setColorActive(color(200, 0, 0))
+                .setValue(0)
+                ;
+        rotation = cp5.addSlider("rotation")
+                .setRange(-1, 1)
+                .setPosition(10, 70)
+                .setGroup(parameters)
+                .setColorBackground(color(100))
+                .setColorForeground(color(100, 0, 0))
+                .setColorActive(color(200, 0, 0))
+                .setValue(0)
+                ;
+        imageScale = cp5.addSlider("imgScale")
+                .setRange(0, 2)
+                .setPosition(10, 80)
+                .setGroup(parameters)
+                .setColorBackground(color(100))
+                .setColorForeground(color(100, 0, 0))
+                .setColorActive(color(200, 0, 0))
+                .setValue(1)
+                ;
+
+
 
         Group direcotry = cp5.addGroup("directories")
                 .setBarHeight(20)
@@ -238,6 +280,7 @@ public class Editor extends PApplet {
         background(20);
         if(segmentShapes.size()>0){
             drawSegmentShapes();
+            drawImageEdges();
         }
        // System.out.println(freq.getValue());
 
@@ -425,6 +468,26 @@ public class Editor extends PApplet {
                 }
                 currSegShape = segmentShapes.get(x);
             }
+            if("offsetX".equals(e.getName())){
+                 if(segment!=null){
+                     segment.setImageOffsetX(e.getValue()*segment.getBoundsX());
+                 }
+            }
+            if("offsetY".equals(e.getName())){
+                 if(segment!=null){
+                     segment.setImageOffsetY(e.getValue()*segment.getBoundsY());
+                 }
+            }
+            if("rotation".equals(e.getName())){
+                 if(segment!=null){
+                     segment.setImageRotation(e.getValue());
+                 }
+            }
+            if("imgScale".equals(e.getName())){
+                 if(segment!=null){
+                     segment.setImageScale(e.getValue());
+                 }
+            }
         
         }
     }    
@@ -446,6 +509,23 @@ public class Editor extends PApplet {
                 .setSize(20, 20)
                 ;
     
+    }
+    
+    private void drawImageEdges(){
+        for(Segment s: segments){
+            if(s.getId()==currSegShape.getId()){
+                //System.out.println("will draw image edge for segment id:"+s.getId());
+                this.stroke(0,0,255);
+                this.noFill();
+                this.pushMatrix();
+                this.translate((s.getImageX()/scale)+layoutPos.x, (s.getImageY()/scale)+layoutPos.y);                
+                this.rotate(s.getRotation());
+                this.rectMode(CENTER);
+                //this.rect((s.getImageX()/scale)+layoutPos.x, (s.getImageY()/scale)+layoutPos.y, s.getImageWidth()/scale, s.getImageHeight()/scale);
+                this.rect(0, 0, s.getImageWidth()/scale, s.getImageHeight()/scale);
+                this.popMatrix();
+            }
+        }
     }
     
 //    private void extractInt(String s){

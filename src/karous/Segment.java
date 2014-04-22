@@ -8,6 +8,7 @@ package karous;
 import processing.core.PApplet;
 import static processing.core.PApplet.map;
 import static processing.core.PApplet.sin;
+import static processing.core.PConstants.CENTER;
 import static processing.core.PConstants.P2D;
 import static processing.core.PConstants.PI;
 import processing.core.PGraphics;
@@ -25,6 +26,7 @@ public class Segment {
 
     private PVector position;
     private PVector size;
+    private PVector imageOffset;
 
     // referencni obrazek
     private PImage image;
@@ -46,6 +48,8 @@ public class Segment {
     float scalingFactor = 1;
     
     private float phase;
+    private float imageRotation = 0;
+    private float imageScale = 1;
 
 //    Segment(PApplet app, PVector position, PVector size) {
 //
@@ -68,6 +72,7 @@ public class Segment {
         this.content = app.createGraphics((int) size.x, (int) size.y);
         this.pulse = 0;
         this.phase = 0;
+        this.imageOffset = new PVector(0,0);
 
     }
     Segment(PApplet app, PImage pi, float scalingFactor) {
@@ -83,7 +88,7 @@ public class Segment {
         
 
     }
-    Segment(PApplet app, PImage pi, PVector position, PVector size) {
+    Segment(PApplet app, PImage pi, PVector position, PVector size, int id) {
 
         this.app = app;
         this.position = position;
@@ -93,8 +98,8 @@ public class Segment {
         this.content = app.createGraphics((int) this.size.x, (int) this.size.y);
         this.pulse = 0;
         this.phase = 0;
-        
-
+        this.id = id;
+        this.imageOffset = new PVector(0,0);
     }
 
 //    Segment(PApplet app, float x, float y, float width, float height) {
@@ -169,7 +174,7 @@ public class Segment {
         if (image != null) {
             //System.out.println(image);
             if(image.width>0){
-                content.image(image, 0, 0, image.width, image.height);
+                content.image(image, imageOffset.x, imageOffset.y, image.width, image.height);
             }
         } else {
             //System.out.println("image is null");
@@ -185,7 +190,14 @@ public class Segment {
             //System.out.println(image);
             //image.mask(maskRef.get());
             if(image.width>0){
-                content.image(image, 0, 0, image.width, image.height);
+                content.pushMatrix();     
+                content.translate(imageOffset.x+size.x/2, imageOffset.y+size.y/2);                                           
+                content.rotate(imageRotation);
+                content.imageMode(CENTER);
+                //content.image(image, imageOffset.x+size.x/2, imageOffset.y+size.y/2, image.width*imageScale, image.height*imageScale);
+                content.image(image, 0, 0, image.width*imageScale, image.height*imageScale);
+                content.popMatrix();
+                
             }
         } else {
             //System.out.println("image is null");
@@ -209,7 +221,8 @@ public class Segment {
 //    }
 
     /**
-     * @param image predava obrazek ktery tento segment zobrazuje
+     * @param image 
+     * predava obrazek ktery tento segment zobrazuje
      */
     public void setImage(PImage image) {
 
@@ -286,5 +299,76 @@ public class Segment {
 
     public int getImageId() {
         return (imageId);
+    }
+    
+    public int getId(){
+        return(id);
+    }
+    public void setId(int i){
+        id = i;
+    }
+    public float getImageWidth(){
+        float x;
+        if (image != null) {
+            if (image.width > 0) {
+                x = image.width*imageScale;
+            }else{
+            x = 0;
+            }
+        } else {
+            x = 0;
+        }
+        return(x);
+    }
+    public float getImageHeight(){
+        float x;
+        if (image != null) {
+            if (image.height > 0) {
+                x = image.height*imageScale;
+            }
+            else {
+                x = 0;
+            }
+        }else{
+            x = 0;
+        }
+        return(x);
+    }
+
+    public void setImageOffsetX(float value) {
+        //System.out.println("setting image offx to: "+value);
+        imageOffset.x = value;
+    }
+    
+     public void setImageOffsetY(float value) {
+       //  System.out.println("setting image offy to: "+value);
+        imageOffset.y = value;
+    }
+
+    float getImageX() {
+        return(imageOffset.x+position.x+size.x/2);
+    }
+
+    float getImageY() {
+        return(imageOffset.y+position.y+size.y/2);
+    }
+
+    void setImageRotation(float f) {
+        this.imageRotation = f;
+    }
+    void setImageScale(float f) {
+        this.imageScale = f;
+    }
+    public float getBoundsX(){
+        float bx = (image.width*imageScale)-size.x;
+        return(bx);
+    }
+    public float getBoundsY(){
+        float by = (image.height*imageScale)-size.y;
+        return(by);
+    }
+
+    float getRotation() {
+        return(imageRotation);
     }
 }
